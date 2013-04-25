@@ -1,10 +1,15 @@
 #!/usr/bin/python
-from bottle import route, run, template
+from bottle import Bottle, run, request, template
 
-@route('/api/:request_path#.*#')
-def index(request_path='World'):
+app = Bottle()
+
+@app.route('/<request_path:re:.*>', method='ANY')
+def index(request_path='unknown'):
 	with open('log', 'a') as f:	
-		f.write('{0}\n'.format(request_path))
+		f.write('{0}\t'.format(request_path))
+		for name, value in request.forms.iteritems():
+			f.write('{0}={1}&'.format(name, value.replace("\r\n", "")))
+		f.write('\n\n')
 	return ''
 
-run(host='localhost', port=8080)
+run(app, host='localhost', port=8080, debug=True)
